@@ -1,0 +1,62 @@
+---
+- name: Create Open WebUI Admin Users
+  hosts: localhost
+  # Most variables are passed in via terraform
+  vars:
+    admin_users: "{{ admin_users_string | split(';') | list | sort }}"
+    existing_users: []
+
+  tasks:
+    - name: Get a Cloudflare Session token
+      ansible.builtin.uri:
+        # url: "https://{{ lookup('env', 'OPENWEBUI_FQDN') }}"
+        url: "https://{{ open_webui_fqdn }}"
+        headers:
+          Accept: "application/json"
+          CF-Access-Client-Id: "{{ clouflare_access_client_id }}"
+          CF-Access-Client-Secret: "{{ clouflare_access_client_secret }}"
+      register: cloudflare_session
+
+    - name: Create the authentication header for OpenWebUI
+      ansible.builtin.set_fact:
+        open_webui_creds: &open_webui_creds
+          headers:
+            Authorization: "Bearer {{ open_webui_api_key }}"
+            Accept: "application/json"
+            Content-Type: "application/json"
+            cf-access-token: "{{ cloudflare_session.cookies.CF_Authorization }}"
+
+    - name: Get existing users
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/users/"
+        method: GET
+        status_code: 200
+      register: existing_users_response
+
+    - name: Get a list of the existing users from the response
+      ansible.builtin.set_fact:
+        existing_users: "{{ existing_users_response.json | map(attribute='email') | list | sort }}"
+
+    - name: Print existing users
+      ansible.builtin.debug:
+        msg: "{{ existing_users }}"
+
+    - name: Print admin users
+      ansible.builtin.debug:
+        msg: "{{ admin_users }}"
+
+    - name: Create new admin users if they don't exist
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/auths/add"
+        method: POST
+        body_format: json
+        body:
+          name: "{{ item }}"
+          email: "{{ item }}"
+          password: "{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+          role: "admin"
+        status_code: 200
+      loop: "{{ admin_users }}"
+      when: item not in existing_users

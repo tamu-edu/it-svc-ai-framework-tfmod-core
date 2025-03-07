@@ -1,0 +1,11 @@
+services:
+  open-webui:
+    build:
+      context: .
+      additional_contexts:
+        #- assets=../../../../../../../assets/${ENVIRONMENT}/open-webui
+        - assets=${ASSETS_DIR}
+      dockerfile: Dockerfile
+    image: ${NEW_IMAGE_NAME}:${WEBUI_TAG}
+    ports:
+      - "8080:8080"

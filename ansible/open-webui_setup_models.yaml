@@ -1,0 +1,172 @@
+---
+- name: Set up Open WebUI Models for User Access
+  hosts: localhost
+  # Most variables are passed in via terraform
+  vars:
+    open_ai_models: []
+    open_ai_model_ids: []
+    open_webui_models: []
+    open_webui_model_ids: []
+    icon_map: {}
+
+  tasks:
+    - name: Get a Cloudflare Session token
+      ansible.builtin.uri:
+        url: "https://{{ open_webui_fqdn }}"
+        headers:
+          Accept: "application/json"
+          CF-Access-Client-Id: "{{ clouflare_access_client_id }}"
+          CF-Access-Client-Secret: "{{ clouflare_access_client_secret }}"
+      register: cloudflare_session
+
+    - name: Create the authentication header for OpenWebUI
+      ansible.builtin.set_fact:
+        open_webui_creds: &open_webui_creds
+          headers:
+            Authorization: "Bearer {{ open_webui_api_key }}"
+            Accept: "application/json"
+            Content-Type: "application/json"
+            cf-access-token: "{{ cloudflare_session.cookies.CF_Authorization }}"
+
+    - name: Get all openai models
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "https://{{ open_webui_fqdn }}/openai/models"
+        method: GET
+        status_code: 200
+      register: open_ai_models_response
+
+    # - name: Print openai models response
+    #   ansible.builtin.debug:
+    #     msg: "{{ open_ai_models_response }}"
+
+    - name: Get the existing openai models from the response
+      ansible.builtin.set_fact:
+        open_ai_models: "{{ open_ai_models_response.json.data }}"
+
+    # - name: Print openai models
+    #   ansible.builtin.debug:
+    #     msg: "{{ open_ai_models }}"
+
+    - name: Get a list of the openai model ids
+      ansible.builtin.set_fact:
+        open_ai_model_ids: "{{ open_ai_models | map(attribute='id') | list }}"
+
+    - name: Print openai model ids
+      ansible.builtin.debug:
+        msg: "{{ open_ai_model_ids }}"
+
+    - name: Get a list of open_webui_models
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/models/base"
+        method: GET
+        status_code: 200
+      register: open_webui_models_response
+
+    # - name: Print open_webui_models response
+    #   ansible.builtin.debug:
+    #     msg: "{{ open_webui_models_response }}"
+
+    - name: Get the existing open_webui models from the response
+      ansible.builtin.set_fact:
+        open_webui_models: "{{ open_webui_models_response.json }}"
+
+    - name: Get a list of the open_webui model ids
+      ansible.builtin.set_fact:
+        open_webui_model_ids: "{{ open_webui_models | map(attribute='id') | list }}"
+
+    - name: Create a list of regex expressions for the model icons
+      ansible.builtin.set_fact:
+        model_icons_regex_map: "{{ model_icons_regex_map | default({}) | combine({(item | split('='))[0]: (item | split('='))[1]}) }}"
+      loop: "{{ model_icons_regex | split(';') }}"
+
+    - name: Print model icons regex
+      ansible.builtin.debug:
+        msg: "{{ model_icons_regex_map }}"
+
+    - name: Figure out the model icon for each model
+      ansible.builtin.include_tasks:
+        file: loop-open-webui_icon_map.yaml
+      loop: "{{ open_ai_models }}"
+      loop_control:
+        loop_var: model
+
+    - name: Print icon map
+      ansible.builtin.debug:
+        msg: "{{ icon_map }}"
+
+    - name: Print open_webui_models
+      ansible.builtin.debug:
+        msg: "{{ open_webui_models }}"
+
+    - name: Create new models if they don't exist
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/models/create"
+        method: POST
+        body_format: json
+        body:
+          id: "{{ item.id }}"
+          name: "{{ item.name }}"
+          meta:
+            profile_image_url: "{{ ('/static/tamu/' + icon_map[item.id]) if item.id in icon_map else omit }}"
+            capabilities:
+              vision: true
+              citations: true
+          is_active: true
+          params: {
+          }
+        status_code: 200
+      loop: "{{ open_ai_models }}"
+      when: item.id not in open_webui_model_ids
+
+    - name: Get the current tasks configuration
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/tasks/config"
+        method: GET
+        status_code: 200
+      register: tasks_response
+
+    - name: Get the tasks configuration from the response
+      ansible.builtin.set_fact:
+        tasks_config: "{{ tasks_response.json }}"
+
+    - name: Change the external task model to ollama
+      ansible.builtin.set_fact:
+        tasks_updated: "{{ tasks_config | combine({'TASK_MODEL_EXTERNAL': 'protected.llama3.2'}) }}"
+
+    - name: Update OpenWebUI tasks configuration
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/tasks/config/update"
+        method: POST
+        body_format: json
+        body: "{{ tasks_updated }}"
+        status_code: 200
+
+    - name: Get the models configuration
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/configs/models"
+        method: GET
+        status_code: 200
+      register: models_response
+
+    - name: Get the models configuration from the response
+      ansible.builtin.set_fact:
+        models_config: "{{ models_response.json }}"
+
+    - name: Change the model configuration to set the default model to gpt-4o
+      ansible.builtin.set_fact:
+        models_updated: "{{ models_config | combine({'DEFAULT_MODELS': 'protected.gpt-4o'}) }}"
+
+    - name: Update OpenWebUI models configuration
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/configs/models"
+        method: POST
+        body_format: json
+        body: "{{ models_updated }}"
+        status_code: 200

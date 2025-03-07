@@ -1,0 +1,5 @@
+- name: Create a map of model name to icon name
+  ansible.builtin.set_fact:
+    icon_map: "{{ icon_map | default({}) | combine({model.id: item.value}) }}"
+  loop: "{{ model_icons_regex_map | dict2items }}"
+  when: model.id | regex_search(item.key)

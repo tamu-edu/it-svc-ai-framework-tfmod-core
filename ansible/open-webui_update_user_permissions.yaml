@@ -1,0 +1,47 @@
+---
+- name: Create Open WebUI Admin Users
+  hosts: localhost
+  # Most variables are passed in via terraform
+
+  tasks:
+    - name: Get a Cloudflare Session token
+      ansible.builtin.uri:
+        # url: "https://{{ lookup('env', 'OPENWEBUI_FQDN') }}"
+        url: "https://{{ open_webui_fqdn }}"
+        headers:
+          Accept: "application/json"
+          CF-Access-Client-Id: "{{ clouflare_access_client_id }}"
+          CF-Access-Client-Secret: "{{ clouflare_access_client_secret }}"
+      register: cloudflare_session
+
+    - name: Create the authentication header for OpenWebUI
+      ansible.builtin.set_fact:
+        open_webui_creds: &open_webui_creds
+          headers:
+            Authorization: "Bearer {{ open_webui_api_key }}"
+            Accept: "application/json"
+            Content-Type: "application/json"
+            cf-access-token: "{{ cloudflare_session.cookies.CF_Authorization }}"
+
+    - name: Update default permissions for users
+      ansible.builtin.uri:
+        <<: *open_webui_creds
+        url: "{{ open_webui_api }}/users/default/permissions"
+        method: POST
+        body_format: json
+        body:
+          workspace:
+            models: true
+            knowledge: false
+            prompts: false
+            tools: false
+          chat:
+            controls: true
+            file_upload: true
+            delete: true
+            edit: true
+            temporary": true
+          features:
+            web_search: false
+            image_generation: false
+        status_code: 200
