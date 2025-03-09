@@ -33,7 +33,6 @@ variable "cloudflare_dns_ttl" {
 variable "cloudflare_domain_name" {
   description = "Cloudflare domain name"
   type        = string
-  default     = "tamu.ai"
 }
 
 variable "cloudflare_identity_provider_id" {

@@ -1,7 +1,7 @@
 locals {
-  fqdn          = "${var.namespace}.${var.environment}.${var.cloudflare_domain_name}"
-  lightllm_fqdn = "${var.namespace}-litellm.${var.environment}.${var.cloudflare_domain_name}"
-  psql_fqdn     = "${var.namespace}-psql.${var.environment}.${var.cloudflare_domain_name}"
+  fqdn          = "${var.namespace}.${var.cloudflare_domain_name}"
+  lightllm_fqdn = "${var.namespace}-litellm.${var.cloudflare_domain_name}"
+  psql_fqdn     = "${var.namespace}-psql.${var.cloudflare_domain_name}"
 
   tunnel_token = base64encode(jsonencode({
     a = var.cloudflare_account_id
@@ -46,7 +46,7 @@ resource "cloudflare_dns_record" "record" {
     "psql" = "-psql"
   }
   zone_id = data.cloudflare_zone.zone.zone_id
-  name    = "${var.namespace}${each.value}.${var.environment}.${var.cloudflare_domain_name}"
+  name    = "${var.namespace}${each.value}.${var.cloudflare_domain_name}"
   type    = "CNAME"
   content = "${cloudflare_zero_trust_tunnel_cloudflared.tunnel.id}.cfargotunnel.com"
   proxied = true
@@ -88,7 +88,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "tunnel_config" {
       }
       },
       {
-        hostname = "${var.namespace}-api.${var.environment}.${var.cloudflare_domain_name}"
+        hostname = "${var.namespace}-api.${var.cloudflare_domain_name}"
         path     = "/api/v1/auths/signup"
         service  = "http_status:404"
         origin_request = {
@@ -101,7 +101,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "tunnel_config" {
         }
       },
       {
-        hostname = "${var.namespace}-api.${var.environment}.${var.cloudflare_domain_name}"
+        hostname = "${var.namespace}-api.${var.cloudflare_domain_name}"
         path     = ""
         service  = "http://open-webui:80"
         origin_request = {
@@ -114,7 +114,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "tunnel_config" {
         }
       },
       #{
-      #  hostname = "${var.namespace}-litellm-exporter.${var.environment}.${var.cloudflare_domain_name}"
+      #  hostname = "${var.namespace}-litellm-exporter.${var.cloudflare_domain_name}"
       #  path     = ""
       #  service  = "http://litellm-exporter:9090"
       #  origin_request = {

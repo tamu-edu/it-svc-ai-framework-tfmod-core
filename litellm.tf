@@ -73,7 +73,7 @@ resource "kubectl_manifest" "litellm_config_map" {
 resource "helm_release" "litellm" {
   name      = "litellm"
   namespace = kubernetes_namespace.namespace.metadata[0].name
-  timeout   = 300
+  timeout   = 600
 
   repository = "oci://ghcr.io/berriai"
   chart      = "litellm-helm"
@@ -112,5 +112,8 @@ resource "null_resource" "litellm_sleep_for_release_ready" {
     command = "sleep 30"
   }
 
-  depends_on = [helm_release.litellm]
+  depends_on = [
+    helm_release.litellm,
+    cloudflare_zero_trust_access_application.access
+  ]
 }
