@@ -241,6 +241,7 @@ resource "kubectl_manifest" "openwebui_db_deployment" {
       storage = {
         size = "10Gi"
       }
+      enablePDB = contains(["dev", "staging"], var.environment) ? false : true
     }
   })
 
