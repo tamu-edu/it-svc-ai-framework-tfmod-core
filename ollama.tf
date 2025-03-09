@@ -1,12 +1,21 @@
+locals {
+  ollama_models_norm = {
+    for model_name, model in var.lightllm_models : model.model_name => 
+      replace(replace(replace(model.model_name, ".", ""), "/", "-"), ":", "--")
+    if model.custom_llm_provider == "ollama"
+    }
+}
+
 resource "kubectl_manifest" "kubernetes_ollama_deployment_pvc" {
+  for_each = local.ollama_models_norm
   yaml_body = yamlencode({
     apiVersion = "v1"
     kind       = "PersistentVolumeClaim"
     metadata = {
       labels = {
-        "io.kompose.service" = "ollama-claim0"
+        "io.kompose.service" = "ollama-claim0-${each.value}"
       }
-      name      = "ollama-claim0"
+      name      = "ollama-claim0-${each.value}"
       namespace = kubernetes_namespace.namespace.metadata[0].name
     }
     spec = {
@@ -27,6 +36,7 @@ resource "kubectl_manifest" "kubernetes_ollama_deployment_pvc" {
 }
 
 resource "kubectl_manifest" "kubernetes_ollama_deployment" {
+  for_each = local.ollama_models_norm
   yaml_body = yamlencode({
     apiVersion = "apps/v1"
     kind       = "Deployment"
@@ -36,16 +46,16 @@ resource "kubectl_manifest" "kubernetes_ollama_deployment" {
         "kompose.version" = "1.34.0 (HEAD)"
       }
       labels = {
-        "io.kompose.service" = "ollama"
+        "io.kompose.service" = "ollama-${each.value}"
       }
-      name      = "ollama"
+      name      = "ollama-${each.value}"
       namespace = kubernetes_namespace.namespace.metadata[0].name
     }
     spec = {
       replicas = 1
       selector = {
         matchLabels = {
-          "io.kompose.service" = "ollama"
+          "io.kompose.service" = "ollama-${each.value}"
         }
       }
       strategy = {
@@ -58,7 +68,7 @@ resource "kubectl_manifest" "kubernetes_ollama_deployment" {
             "kompose.version" = "1.34.0 (HEAD)"
           }
           labels = {
-            "io.kompose.service" = "ollama"
+            "io.kompose.service" = "ollama-${each.value}"
           }
         }
         spec = {
@@ -92,7 +102,7 @@ resource "kubectl_manifest" "kubernetes_ollama_deployment" {
               volumeMounts = [
                 {
                   mountPath = "/root/.ollama"
-                  name      = "ollama-claim0"
+                  name      = "ollama-claim0-${each.value}"
                 },
               ]
             },
@@ -106,9 +116,9 @@ resource "kubectl_manifest" "kubernetes_ollama_deployment" {
           terminationGracePeriodSeconds = 15
           volumes = [
             {
-              name = "ollama-claim0"
+              name = "ollama-claim0-${each.value}"
               persistentVolumeClaim = {
-                claimName = "ollama-claim0"
+                claimName = "ollama-claim0-${each.value}"
               }
             },
           ]
@@ -121,6 +131,7 @@ resource "kubectl_manifest" "kubernetes_ollama_deployment" {
 }
 
 resource "kubectl_manifest" "kubernetes_ollama_service" {
+  for_each = local.ollama_models_norm
   yaml_body = yamlencode({
     apiVersion = "v1"
     kind       = "Service"
@@ -130,9 +141,9 @@ resource "kubectl_manifest" "kubernetes_ollama_service" {
         "kompose.version" = "1.34.0 (HEAD)"
       }
       labels = {
-        "io.kompose.service" = "ollama"
+        "io.kompose.service" = "ollama-${each.value}"
       }
-      name      = "ollama"
+      name      = "ollama-${each.value}"
       namespace = kubernetes_namespace.namespace.metadata[0].name
     }
     spec = {
@@ -144,7 +155,7 @@ resource "kubectl_manifest" "kubernetes_ollama_service" {
         },
       ]
       selector = {
-        "io.kompose.service" = "ollama"
+        "io.kompose.service" = "ollama-${each.value}"
       }
     }
   })
@@ -153,18 +164,18 @@ resource "kubectl_manifest" "kubernetes_ollama_service" {
 }
 
 resource "null_resource" "ollama_fetch_models" {
+  for_each = local.ollama_models_norm
   triggers = {
-    models = "${join(" ", var.ollama_models)}"
+    #models = "${join(" ", keys(local.ollama_models_norm))}"
+    model = each.value
   }
   provisioner "local-exec" {
     #when    = create
     command = <<-EOT
-      for pod in $(kubectl get pods -n ${var.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama" | grep -v "pg-")
+      #for pod in $(kubectl get pods -n ${var.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama" | grep -v "pg-")
+      for pod in $(kubectl get pods -n ${var.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama-${each.value}" | grep -v "pg-")
       do
-        for model in ${join(" ", var.ollama_models)}
-        do
-          kubectl -n ${var.namespace} exec -it $pod -- ollama pull $model
-        done
+        kubectl -n ${var.namespace} exec -it $pod -- ollama pull ${each.key}
       done
       EOT
   }

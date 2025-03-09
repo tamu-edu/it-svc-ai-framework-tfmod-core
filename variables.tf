@@ -178,7 +178,7 @@ variable "lightllm_models" {
     "granite-code:8b" = {
       model_name          = "granite-code:8b"
       custom_llm_provider = "ollama"
-      model_api_base      = "http://ollama:7869"
+      #model_api_base      = "http://ollama:7869"
       base_model          = "granite-code:8b"
       tier                = "paid"
       authentication      = "none"
@@ -195,7 +195,7 @@ variable "lightllm_models" {
     "llama3.2" = {
       model_name                     = "llama3.2"
       custom_llm_provider            = "ollama"
-      model_api_base                 = "http://ollama:7869"
+      #model_api_base                 = "http://ollama:7869"
       base_model                     = "llama3.2"
       tier                           = "paid"
       authentication                 = "none"
@@ -283,15 +283,15 @@ variable "namespace_secrets_separate" {
   }
 }
 
-variable "ollama_models" {
-  description = "Ollama models"
-  type        = list(string)
-  default = [
-    "llama3.2",
-    "granite-code:8b",
-    "hf.co/brittlewis12/s1-32B-GGUF:Q4_0"
-  ]
-}
+#variable "ollama_models" {
+#  description = "Ollama models"
+#  type        = list(string)
+#  default = [
+#    "llama3.2",
+#    "granite-code:8b",
+#    #"hf.co/brittlewis12/s1-32B-GGUF:Q4_0"
+#  ]
+#}
 
 variable "openwebui_admins" {
   description = "OpenWebUI admins"
