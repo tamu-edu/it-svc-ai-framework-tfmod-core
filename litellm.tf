@@ -46,6 +46,7 @@ resource "kubectl_manifest" "litellm_db_deployment" {
       storage = {
         size = "10Gi"
       }
+      enablePDB = contains(["dev", "staging"], var.environment) ? false : true
     }
   })
 
