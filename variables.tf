@@ -47,8 +47,8 @@ variable "environment" {
   type        = string
 
   validation {
-    condition     = var.environment == "dev" || var.environment == "test" || var.environment == "prod"
-    error_message = "Environment must be one of dev, test, or prod"
+    condition     = var.environment == "dev" || var.environment == "staging" || var.environment == "prod"
+    error_message = "Environment must be one of dev, staging, or prod"
   }
 }
 
