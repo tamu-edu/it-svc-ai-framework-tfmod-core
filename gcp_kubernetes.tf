@@ -1,5 +1,6 @@
 locals {
   kubernetes_cluster_name = "${var.kubernetes_cluster_prefix}-${var.environment}"
+  kube_config_path = "~/.kube/config_${var.kubernetes_cluster_prefix}-${var.environment}"
 }
 
 #resource "google_container_cluster" "autopilot_cluster" {
