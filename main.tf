@@ -71,7 +71,19 @@ provider "docker" {
   }
 }
 
-data "google_client_config" "current" {}
+provider "helm" {
+  kubernetes {
+    config_path = local.kube_config_path
+  }
+}
+
+provider "kubectl" {
+  config_path = local.kube_config_path
+}
+
+provider "kubernetes" {
+  config_path = local.kube_config_path
+}
 
 provider "litellm" {
   #api_base = "http://localhost:4000"
@@ -79,6 +91,8 @@ provider "litellm" {
   #api_key  = "sk-1234"
   api_key = local.one_password_namespace_secrets["LITELLM_PROXY_MASTER_KEY"]
 }
+
+data "google_client_config" "current" {}
 
 locals {
   env_name = "it-svc-ai-framework:${var.environment}:${var.namespace}"
