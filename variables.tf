@@ -143,8 +143,8 @@ variable "litellm_proxy_set_verbose" {
 variable "litellm_image_tag" {
   description = "LightLLM image tag"
   type        = string
-  #default     = "main-v1.60.8"
-  default = "main-v1.61.7"
+  #default = "main-v1.61.7"
+  default = "litellm_stable_release_branch-v1.63.2-stable"
 }
 
 variable "litellm_replica_count" {
@@ -177,10 +177,11 @@ variable "lightllm_models" {
     "granite-code:8b" = {
       model_name          = "granite-code:8b"
       custom_llm_provider = "ollama"
-      #model_api_base      = "http://ollama:7869"
       base_model          = "granite-code:8b"
       tier                = "paid"
       authentication      = "none"
+      input_cost_per_million_tokens  = 1
+      output_cost_per_million_tokens = 3
     }
     #"hf.co/brittlewis12/s1-32B-GGUF:Q4_0" = {
     #  #model_name          = "hf.co/brittlewis12/s1-32B-GGUF:Q4_0"
@@ -194,12 +195,11 @@ variable "lightllm_models" {
     "llama3.2" = {
       model_name                     = "llama3.2"
       custom_llm_provider            = "ollama"
-      #model_api_base                 = "http://ollama:7869"
       base_model                     = "llama3.2"
       tier                           = "paid"
       authentication                 = "none"
-      input_cost_per_million_tokens  = 1.0
-      output_cost_per_million_tokens = 3.0
+      input_cost_per_million_tokens  = 1
+      output_cost_per_million_tokens = 3
     }
     "Claude 3.5 Sonnet" = {
       model_name          = "Claude 3.5 Sonnet"
@@ -282,16 +282,6 @@ variable "namespace_secrets_separate" {
   }
 }
 
-#variable "ollama_models" {
-#  description = "Ollama models"
-#  type        = list(string)
-#  default = [
-#    "llama3.2",
-#    "granite-code:8b",
-#    #"hf.co/brittlewis12/s1-32B-GGUF:Q4_0"
-#  ]
-#}
-
 variable "openwebui_admins" {
   description = "OpenWebUI admins"
   type        = list(string)
@@ -311,7 +301,8 @@ variable "openwebui_helm_chart_version" {
 variable "openwebui_image_tag" {
   description = "OpenWebUI image tag"
   type        = string
-  default     = "0.5.16"
+  #default     = "0.5.16"
+  default     = "0.5.20"
 }
 
 variable "openwebui_model_logos" {
