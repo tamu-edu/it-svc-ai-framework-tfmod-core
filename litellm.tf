@@ -109,7 +109,7 @@ resource "null_resource" "litellm_sleep_for_release_ready" {
     last_deployment = helm_release.litellm.metadata[0].last_deployed
   }
   provisioner "local-exec" {
-    command = "sleep 30"
+    command = "sleep 60"
   }
 
   depends_on = [

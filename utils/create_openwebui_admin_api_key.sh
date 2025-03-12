@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 LOG_FILE="/tmp/create_openwebui_admin_api_key.log"
+FAILED=0
 rm -f $LOG_FILE
 
 # Authenticate to Cloudflare and get an access token
@@ -35,6 +36,15 @@ echo "Setting the API key for the admin user" >> $LOG_FILE
 SQL="update public.user set api_key='${OPENWEBUI_API_KEY}' where email='admin@admin.com';"
 export PGPASSWORD="${PSQL_PASSWORD}"
 echo "$SQL" | psql -h localhost -U ${PSQL_USERNAME} -d ${PSQL_DB} 2>&1 >> $LOG_FILE
+if [ $? -ne 0 ]
+then
+  echo "Failed to set the API key for the admin user" >> $LOG_FILE
+  FAILED=1
+else
+  echo "Successfully set the API key for the admin user" >> $LOG_FILE
+fi
 
 echo "Killing cloudflared session" >> $LOG_FILE
 kill $CLOUDFLARED_PID 2>&1 >> $LOG_FILE
+echo "Returning $FAILED" >> $LOG_FILE
+exit $FAILED
