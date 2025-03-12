@@ -170,6 +170,10 @@ resource "null_resource" "ollama_fetch_models" {
     model = each.value
   }
   provisioner "local-exec" {
+
+    environment = {
+      KUBECONFIG = pathexpand(local.kube_config_path)
+    }
     #when    = create
     command = <<-EOT
       #for pod in $(kubectl get pods -n ${var.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama" | grep -v "pg-")
