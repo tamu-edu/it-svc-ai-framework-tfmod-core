@@ -14,7 +14,8 @@ variable "cloudflare_access_service_token" {
   type        = map(string)
   default = {
     name = "Cloudflare Service Token (API access to OpenWebUI)"
-    id   = "7175db3e-0815-4e1c-a970-3d5827a7995c"
+    #id   = "7175db3e-0815-4e1c-a970-3d5827a7995c"
+    id   = "32d1782d-0768-4108-a8e0-434ce020b239"
   }
 }
 
@@ -38,8 +39,8 @@ variable "cloudflare_domain_name" {
 variable "cloudflare_identity_provider_id" {
   description = "Cloudflare IDP instance id"
   type        = string
-  #default     = "23baac1b8c4512aca04b3d33ae1787fb"
-  default = "7216a9fe-fc3b-4d15-9bff-63154af95946"
+  #default = "7216a9fe-fc3b-4d15-9bff-63154af95946"
+  default = "02fb2b32-90ff-46dd-b541-51f849aec126"
 }
 
 variable "environment" {
