@@ -6,7 +6,7 @@ variable "asset_directory" {
 variable "cloudflare_account_id" {
   description = "Cloudflare account id"
   type        = string
-  default     = "3f44406dadaf8b9c8e58f4586f85e167"
+  default     = "23baac1b8c4512aca04b3d33ae1787fb"
 }
 
 variable "cloudflare_access_service_token" {
@@ -38,7 +38,7 @@ variable "cloudflare_domain_name" {
 variable "cloudflare_identity_provider_id" {
   description = "Cloudflare IDP instance id"
   type        = string
-  #default     = "3f44406dadaf8b9c8e58f4586f85e167"
+  #default     = "23baac1b8c4512aca04b3d33ae1787fb"
   default = "7216a9fe-fc3b-4d15-9bff-63154af95946"
 }
 
@@ -227,7 +227,7 @@ variable "lightllm_models" {
       model_name          = "gpt-4o-via-cloudflare"
       custom_llm_provider = "azure"
       base_model          = "gpt-4o"
-      model_api_base      = "https://gateway.ai.cloudflare.com/v1/3f44406dadaf8b9c8e58f4586f85e167/tamu-ai-staging/azure-openai/azure-openai-644048"
+      model_api_base      = "https://gateway.ai.cloudflare.com/v1/23baac1b8c4512aca04b3d33ae1787fb/tamu-ai-staging/azure-openai/azure-openai-644048"
       api_version         = "2024-08-01-preview"
       tier                = "paid"
       authentication      = "azure"
@@ -236,7 +236,7 @@ variable "lightllm_models" {
       model_name          = "o3-mini-via-cloudflare"
       custom_llm_provider = "azure"
       base_model          = "o3-mini"
-      model_api_base      = "https://gateway.ai.cloudflare.com/v1/3f44406dadaf8b9c8e58f4586f85e167/tamu-ai-staging/azure-openai/azure-openai-644048"
+      model_api_base      = "https://gateway.ai.cloudflare.com/v1/23baac1b8c4512aca04b3d33ae1787fb/tamu-ai-staging/azure-openai/azure-openai-644048"
       api_version         = "2024-12-01-preview"
       tier                = "paid"
       authentication      = "azure"
