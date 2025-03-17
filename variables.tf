@@ -58,16 +58,6 @@ variable "kubernetes_cluster_prefix" {
   default     = "it-svc-ai-framework"
 }
 
-#variable "litellm_admins" {
-#  description = "LightLLM admins"
-#  type        = list(string)
-#  default = [
-#    "bdd4329",
-#    "joshuacook",
-#    "soren"
-#  ]
-#}
-
 variable "litellm_db_database" {
   description = "LightLLM database name"
   type        = string
@@ -286,9 +276,9 @@ variable "openwebui_admins" {
   description = "OpenWebUI admins"
   type        = list(string)
   default = [
-    "bdd4329@tamu.edu",
-    "joshuacook@tamu.edu",
-    "soren@tamu.edu"
+    "bdd4329-admin@tamu.edu",
+    "joshuacook-admin@tamu.edu",
+    "soren-admin@tamu.edu"
   ]
 }
 
