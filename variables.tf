@@ -245,8 +245,8 @@ variable "lightllm_models" {
   }
 }
 
-variable "namespace" {
-  description = "kubernetes cluster namespace, e.g. NAMESPACE=chat (i.e., chat.dev.tamu.ai)"
+variable "name" {
+  description = "Site short-name that will be part of the kubernetes cluster namespace, e.g. chat (i.e., chat.dev.tamu.ai)"
   type        = string
 }
 

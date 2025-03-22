@@ -258,7 +258,7 @@ data "external" "openwebui_build_container" {
     #environment         = var.environment
     #assets_dir          = "${path.root}/../../../../../../../assets/${var.environment}/open-webui"
     assets_dir          = "${abspath(path.root)}/${var.asset_directory}/open-webui"
-    new_image_name      = "ghcr.io/tamu-edu/tamu-open-webui-${var.environment}-${var.namespace}"
+    new_image_name      = "ghcr.io/tamu-edu/tamu-open-webui-${var.environment}-${local.namespace}"
     openwebui_image_tag = var.openwebui_image_tag
   }
 }

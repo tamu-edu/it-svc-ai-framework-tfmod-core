@@ -176,10 +176,10 @@ resource "null_resource" "ollama_fetch_models" {
     }
     #when    = create
     command = <<-EOT
-      #for pod in $(kubectl get pods -n ${var.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama" | grep -v "pg-")
-      for pod in $(kubectl get pods -n ${var.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama-${each.value}" | grep -v "pg-")
+      #for pod in $(kubectl get pods -n ${local.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama" | grep -v "pg-")
+      for pod in $(kubectl get pods -n ${local.namespace} --no-headers -o custom-columns=":metadata.name" | grep "^ollama-${each.value}" | grep -v "pg-")
       do
-        kubectl -n ${var.namespace} exec -it $pod -- ollama pull ${each.key}
+        kubectl -n ${local.namespace} exec -it $pod -- ollama pull ${each.key}
       done
       EOT
   }

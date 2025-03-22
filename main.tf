@@ -95,5 +95,6 @@ provider "litellm" {
 data "google_client_config" "current" {}
 
 locals {
-  env_name = "it-svc-ai-framework:${var.environment}:${var.namespace}"
+  env_name = "it-svc-ai-framework:${var.environment}:${var.name}-${replace(var.cloudflare_domain_name, ".", "-")}"
+  namespace = "${replace(var.name, ".", "-")}-${replace(var.cloudflare_domain_name, ".", "-")}"
 }
