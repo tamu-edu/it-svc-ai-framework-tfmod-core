@@ -16,7 +16,6 @@ locals {
 }
 
 output "temp" {
-  #value = local.cloudflare_access_service_token
   sensitive = true
   value = ""
 }
@@ -48,11 +47,11 @@ resource "random_password" "separate_password" {
 
 resource "onepassword_item" "namespace_secrets_shared" {
   vault    = data.onepassword_vault.vault.uuid
-  title    = "${var.namespace}-secrets"
+  title    = "${local.namespace}-secrets"
   category = "login"
 
   section {
-    label = "${var.namespace} secrets"
+    label = "${local.namespace} secrets"
 
     dynamic "field" {
       for_each = var.namespace_secrets_shared
@@ -69,7 +68,7 @@ resource "onepassword_item" "namespace_secrets_shared" {
 resource "onepassword_item" "namespace_secrets_separate" {
   for_each = var.namespace_secrets_separate
   vault    = data.onepassword_vault.vault.uuid
-  title    = "${var.namespace}-${each.key}"
+  title    = "${local.namespace}-${each.key}"
   category = "login"
 
   username = each.value
@@ -86,41 +85,10 @@ data "onepassword_item" "shared_cloudflare_access_service_token" {
   title = var.cloudflare_access_service_token.name
 }
 
-#data "onepassword_item" "it-ae-tamu-ai_connector_token" {
-#  vault = data.onepassword_vault.vault.uuid
-#  title = "1password it-ae-tamu-ai connector token (${var.environment})"
-#}
-#
-#data "onepassword_item" "it-ae-tamu-ai_connector_json" {
-#  vault = data.onepassword_vault.vault.uuid
-#  title = "1password-it-ae-tamu-ai-token.json"
-#}
-
 data "onepassword_item" "ghcr_credentials" {
   vault = data.onepassword_vault.vault.uuid
   title = "sa-auto-ai-framework (GitHub PAT)"
 }
-
-#resource "helm_release" "onepassword_operator" {
-#  name      = "${var.environment}-onepassword-operator"
-#  namespace = kubernetes_namespace.namespace.metadata[0].name
-#
-#  repository = "https://1password.github.io/connect-helm-charts/"
-#  chart      = "connect"
-#
-#  set {
-#    name  = "operator.create"
-#    value = true
-#  }
-#  set {
-#    name  = "operator.token.value"
-#    value = data.onepassword_item.it-ae-tamu-ai_connector_token.password
-#  }
-#  set {
-#    name  = "connect.credentials_base64"
-#    value = data.onepassword_item.it-ae-tamu-ai_connector_json.section[0].file[0].content_base64
-#  }
-#}
 
 resource "kubectl_manifest" "secrets_mapping_onepassword_shared" {
   for_each = toset(var.shared_secrets)
@@ -137,23 +105,7 @@ resource "kubectl_manifest" "secrets_mapping_onepassword_shared" {
       itemPath = "vaults/it-ae-svc-open-webui-${var.environment}/items/shared-${each.value}"
     }
   })
-
-  #depends_on = [
-  #  helm_release.onepassword_operator
-  #]
 }
-
-### DEBUGGING
-#data onepassword_item "namespace_secrets" {
-#  vault    = data.onepassword_vault.vault.uuid
-#  title    = "${var.namespace}-secrets"
-#}
-#
-#output "temp" {
-#  value = data.onepassword_item.namespace_secrets.section
-#  sensitive = true
-#}
-## DEBUGGING
 
 resource "kubectl_manifest" "secrets_mapping_onepassword_namespace_shared" {
   for_each = toset(keys(var.namespace_secrets_shared))
@@ -167,12 +119,11 @@ resource "kubectl_manifest" "secrets_mapping_onepassword_namespace_shared" {
     }
 
     spec = {
-      itemPath = "vaults/it-ae-svc-open-webui-${var.environment}/items/${var.namespace}-secrets"
+      itemPath = "vaults/it-ae-svc-open-webui-${var.environment}/items/${local.namespace}-secrets"
     }
   })
 
   depends_on = [
-    #helm_release.onepassword_operator,
     onepassword_item.namespace_secrets_shared
   ]
 }
@@ -189,12 +140,11 @@ resource "kubectl_manifest" "secrets_mapping_onepassword_namespace_separate" {
     }
 
     spec = {
-      itemPath = "vaults/it-ae-svc-open-webui-${var.environment}/items/${var.namespace}-${each.key}"
+      itemPath = "vaults/it-ae-svc-open-webui-${var.environment}/items/${local.namespace}-${each.key}"
     }
   })
 
   depends_on = [
-    #helm_release.onepassword_operator,
     onepassword_item.namespace_secrets_separate
   ]
 }
