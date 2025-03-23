@@ -18,6 +18,7 @@ locals {
     "proxy_config.litellm_settings.json_logs"                        = var.litellm_proxy_json_logs
     "proxy_config.litellm_settings.request_timeout"                  = var.litellm_proxy_request_timeout
     "proxy_config.litellm_settings.set_verbose"                      = var.litellm_proxy_set_verbose
+    "proxy_config.litellm_settings.drop_params"                      = var.litellm_proxy_drop_params
   }
 }
 

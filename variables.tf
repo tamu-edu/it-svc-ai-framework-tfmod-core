@@ -125,10 +125,17 @@ variable "litellm_proxy_request_timeout" {
   default     = 600
 }
 
+
 variable "litellm_proxy_set_verbose" {
   description = "Set verbose logging"
   type        = bool
   default     = false
+}
+
+variable "litellm_proxy_drop_params" {
+  description = "Drop params for models that can't support them"
+  type        = bool
+  default     = true
 }
 
 variable "litellm_image_tag" {
