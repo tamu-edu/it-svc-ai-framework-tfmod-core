@@ -231,24 +231,24 @@ variable "lightllm_models" {
       tier                = "paid"
       authentication      = "azure"
     }
-    "gpt-4o-via-cloudflare" = {
-      model_name          = "gpt-4o-via-cloudflare"
-      custom_llm_provider = "azure"
-      base_model          = "gpt-4o"
-      model_api_base      = "https://gateway.ai.cloudflare.com/v1/23baac1b8c4512aca04b3d33ae1787fb/tamu-ai-staging/azure-openai/azure-openai-644048"
-      api_version         = "2024-08-01-preview"
-      tier                = "paid"
-      authentication      = "azure"
-    }
-    "o3-mini-via-cloudflare" = {
-      model_name          = "o3-mini-via-cloudflare"
-      custom_llm_provider = "azure"
-      base_model          = "o3-mini"
-      model_api_base      = "https://gateway.ai.cloudflare.com/v1/23baac1b8c4512aca04b3d33ae1787fb/tamu-ai-staging/azure-openai/azure-openai-644048"
-      api_version         = "2024-12-01-preview"
-      tier                = "paid"
-      authentication      = "azure"
-    }
+    #"gpt-4o-via-cloudflare" = {
+    #  model_name          = "gpt-4o-via-cloudflare"
+    #  custom_llm_provider = "azure"
+    #  base_model          = "gpt-4o"
+    #  model_api_base      = "https://gateway.ai.cloudflare.com/v1/23baac1b8c4512aca04b3d33ae1787fb/tamu-ai-staging/azure-openai/azure-openai-644048"
+    #  api_version         = "2024-08-01-preview"
+    #  tier                = "paid"
+    #  authentication      = "azure"
+    #}
+    #"o3-mini-via-cloudflare" = {
+    #  model_name          = "o3-mini-via-cloudflare"
+    #  custom_llm_provider = "azure"
+    #  base_model          = "o3-mini"
+    #  model_api_base      = "https://gateway.ai.cloudflare.com/v1/23baac1b8c4512aca04b3d33ae1787fb/tamu-ai-staging/azure-openai/azure-openai-644048"
+    #  api_version         = "2024-12-01-preview"
+    #  tier                = "paid"
+    #  authentication      = "azure"
+    #}
   }
 }
 

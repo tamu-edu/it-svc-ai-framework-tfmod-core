@@ -1,6 +1,7 @@
 locals {
   fqdn          = "${var.name}.${var.cloudflare_domain_name}"
   lightllm_fqdn = "${var.name}-litellm.${var.cloudflare_domain_name}"
+  pipelines_fqdn= "${var.name}-pipelines.${var.cloudflare_domain_name}"
   psql_fqdn     = "${var.name}-psql.${var.cloudflare_domain_name}"
 
   tunnel_token = base64encode(jsonencode({
@@ -43,6 +44,7 @@ resource "cloudflare_dns_record" "record" {
     "base"    = ""
     "litellm" = "-litellm"
     #"litellm-exporter" = "-litellm-exporter"
+    "pipelines" = "-pipelines"
     "psql" = "-psql"
   }
   zone_id = data.cloudflare_zone.zone.zone_id
@@ -130,6 +132,19 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "tunnel_config" {
         hostname = local.lightllm_fqdn
         path     = ""
         service  = "http://litellm:4000"
+        origin_request = {
+          connect_timeout = 120
+          access = {
+            required  = false
+            team_name = local.env_name
+            aud_tag   = [cloudflare_zero_trust_access_application.access.name]
+          }
+        }
+      },
+      {
+        hostname = local.pipelines_fqdn
+        path     = ""
+        service  = "http://open-webui-pipelines:9099"
         origin_request = {
           connect_timeout = 120
           access = {
