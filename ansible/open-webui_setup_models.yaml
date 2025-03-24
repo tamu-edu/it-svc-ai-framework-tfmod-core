@@ -28,6 +28,30 @@
             Content-Type: "application/json"
             cf-access-token: "{{ cloudflare_session.cookies.CF_Authorization }}"
 
+    - name: Create the authentication header for OpenWebUI Pipelines
+      ansible.builtin.set_fact:
+        pipelines_creds: &pipelines_creds
+          headers:
+            Authorization: "Bearer {{ pipelines_api_key }}"
+            Accept: "application/json"
+            Content-Type: "application/json"
+            cf-access-token: "{{ cloudflare_session.cookies.CF_Authorization }}"
+
+    - name: Pause for 10 seconds to ensure consistency in LiteLLM
+      ansible.builtin.pause:
+        seconds: 10
+
+    - name: Reload the models in pipelines
+      ansible.builtin.uri:
+        <<: *pipelines_creds
+        url: "{{ pipelines_api }}/pipelines/reload"
+        method: POST
+        status_code: 200
+
+    - name: Pause for 10 seconds to allow the models to reload
+      ansible.builtin.pause:
+        seconds: 10
+
     - name: Get all openai models
       ansible.builtin.uri:
         <<: *open_webui_creds

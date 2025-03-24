@@ -387,6 +387,8 @@ resource "ansible_playbook" "openwebui_setup_models" {
     open_webui_fqdn                = local.fqdn
     open_webui_api                 = "https://${local.fqdn}/api/v1"
     open_webui_api_key             = local.one_password_namespace_secrets["open-webui-api-key"]
+    pipelines_api                  = "https://${local.pipelines_fqdn}/v1"
+    pipelines_api_key              = local.one_password_namespace_secrets["LITELLM_PROXY_MASTER_KEY"]
     model_icons_regex = join(";", flatten([
       for expression in var.openwebui_model_logos : [
         "${expression.regex}=${expression.filename}"
