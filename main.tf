@@ -60,10 +60,20 @@ terraform {
       source  = "hashicorp/random"
       version = "3.6.3"
     }
+
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "4.17.0"
+    }
   }
 }
 
 #data "google_client_config" "current" {}
+
+provider "azurerm" {
+  features {}
+  subscription_id = var.azure_subscription_id
+}
 
 provider "docker" {
   registry_auth {

@@ -3,6 +3,44 @@ variable "asset_directory" {
   type        = string
 }
 
+variable "azure_subscription_id" {
+  description = "Azure subscription id for the staging environment"
+  type        = string
+  default     = "3b271954-106f-4a66-b5fb-679fcf64657a" # it-ae-tamu-ai-staging
+}
+
+variable "azure_openai_models" {
+  description = "A list of the models to be deployed to this account."
+  type = map(object({
+    model_name = string
+    sku        = string
+    version    = string
+  }))
+  default = {
+    gpt4o = {
+      model_name = "gpt-4o"
+      sku        = "Standard"
+      version    = "2024-05-13"
+    },
+    o1 = {
+      model_name = "o1"
+      sku        = "GlobalStandard"
+      version    = "2024-12-17"
+    },
+    o3mini = {
+      model_name = "o3-mini"
+      sku        = "GlobalStandard"
+      version    = "2025-01-31"
+    }
+  }
+}
+
+variable "azure_deployment_domain_name" {
+  description = "The domain name for the Azure deployment. This should be a unique name for the cognitive account."
+  type        = string
+  default     = "tamu-ai-staging" # This should be unique across Azure Cognitive Services
+}
+
 variable "cloudflare_account_id" {
   description = "Cloudflare account id"
   type        = string
