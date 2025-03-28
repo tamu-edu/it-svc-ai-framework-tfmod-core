@@ -38,8 +38,8 @@ resource "litellm_model" "model" {
   model_name                     = each.value.model_name
   custom_llm_provider            = each.value.custom_llm_provider
   base_model                     = each.value.base_model
-  model_api_key                  = each.value.authentication == "azure" ? data.onepassword_item.shared_model_az.credential : null
-  model_api_base                 = each.value.custom_llm_provider == "ollama" ? "http://ollama-${local.ollama_models_norm[each.value.model_name]}:7869" : try(each.value.model_api_base, null)
+  model_api_key                  = each.value.authentication == "azure" ? data.onepassword_item.az_openai_key.credential : null
+  model_api_base                 = each.value.custom_llm_provider == "ollama" ? "http://ollama-${local.ollama_models_norm[each.value.model_name]}:7869" : (each.value.custom_llm_provider == "azure" ? azurerm_cognitive_account.openai.endpoint : try(each.value.model_api_base, null))
   api_version                    = try(each.value.api_version, null)
   tier                           = each.value.tier
   aws_access_key_id              = each.value.authentication == "aws" ? local.aws_models_credentials.aws_access_key_id : null
