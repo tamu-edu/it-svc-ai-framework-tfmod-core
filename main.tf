@@ -65,6 +65,11 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "4.17.0"
     }
+
+    aws = {
+      source  = "hashicorp/aws"
+      version = "5.87.0"
+    }
   }
 }
 
@@ -73,6 +78,10 @@ terraform {
 provider "azurerm" {
   features {}
   subscription_id = var.azure_subscription_id
+}
+
+provider "aws" {
+  region = "us-east-1"
 }
 
 provider "docker" {

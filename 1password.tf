@@ -175,6 +175,14 @@ data "onepassword_item" "shared_model_aws" {
   title = "shared-model-aws"
 }
 
+resource "onepassword_item" "aws_access_key" {
+  vault = data.onepassword_vault.vault.uuid
+  title = "aws_access_key"
+  category = "login"
+  username = aws_iam_access_key.litellm_access_key.id
+  password = aws_iam_access_key.litellm_access_key.secret
+}
+
 resource "onepassword_item" "az_openai_key" {
   vault = data.onepassword_vault.vault.uuid
   title = "az_openai_key"
